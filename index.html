@@ -2,14 +2,19 @@
 <html>
 <head>
 	<meta charset="UTF-8">
-	<title>Gerador de Mapas</title>
+	<title>Map Pins Generator</title>
 	<style>
 		body { font-family: sans-serif; padding: 20px; }
 		.container { max-width: 600px; margin: auto; }
 		input[type="file"], input[type="text"] { width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box; }
 		button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; }
 		button:hover { background-color: #0056b3; }
-		#status { margin-top: 20px; font-weight: bold; }
+		#status { 
+			margin-top: 20px; 
+			font-weight: bold; 
+			font-family: monospace; 
+			white-space: pre-wrap; 
+		}
 		#version {
 			position: fixed;
 			bottom: 10px;
@@ -21,19 +26,19 @@
 </head>
 <body>
 	<div class="container">
-		<h1>Gerador de Mapas a partir de CSV</h1>
+		<h1>Map Pin Generator</h1>
 		
-		<p>Selecione o arquivo CSV de origem:</p>
-		<input type="text" id="csvPath" placeholder="Caminho do arquivo CSV" readonly>
-		<button id="selectCsvButton">Selecionar CSV</button>
+		<p>Select a CSV file:</p>
+		<input type="text" id="csvPath" placeholder="CSV file path" readonly>
+		<button id="selectCsvButton">Select CSV</button>
 
-		<p>Selecione a pasta de destino para as imagens PNG:</p>
-		<input type="text" id="outputPath" placeholder="Caminho da pasta de destino" readonly>
-		<button id="selectOutputButton">Selecionar Pasta</button>
+		<p>Select a destination folder for the generated PNG images:</p>
+		<input type="text" id="outputPath" placeholder="Folder destination path" readonly>
+		<button id="selectOutputButton">Select Folder</button>
 
 		<hr>
-		<button id="generateButton">Gerar Imagens</button>
-		<div id="status"></div>
+		<button id="generateButton">Generate Maps</button>
+		<pre id="status"></pre>
 	</div>
 	<div id="version"></div>
 	

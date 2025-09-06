@@ -52,9 +52,9 @@ ipcMain.handle('select-folder', async () => {
 ipcMain.handle('start-generation', async (event, { csvPath, outputPath }) => {
 	try {
 		await generateMultipleMapsFromCsv(csvPath, outputPath);
-		return { success: true, message: 'Mapas gerados com sucesso!' };
+		return { success: true, message: 'Maps generated!\n' + outputPath };
 	} catch (error) {
-		return { success: false, message: `Erro: ${error.message}` };
+		return { success: false, message: `Error: ${error.message}` };
 	}
 });
 

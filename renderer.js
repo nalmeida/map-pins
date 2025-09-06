@@ -25,12 +25,12 @@ generateButton.addEventListener('click', async () => {
 
 	// --- Validação 1: Campos Vazios ---
 	if (!csvPath || !outputPath) {
-		statusDiv.textContent = 'Por favor, selecione o arquivo CSV e a pasta de destino.';
+		statusDiv.textContent = 'Please, select a CSV file and the destination folder.';
 		statusDiv.style.color = 'red';
 		return; // Sai da função, impedindo a execução
 	}
 
-	statusDiv.textContent = 'Iniciando a geração...';
+	statusDiv.textContent = 'Generating...';
 	statusDiv.style.color = 'black'; // Reseta a cor para o padrão
 	generateButton.disabled = true;
 
@@ -38,10 +38,10 @@ generateButton.addEventListener('click', async () => {
 	const result = await window.electronAPI.startGeneration({ csvPath, outputPath });
 
 	if (result.success) {
-		statusDiv.textContent = `Sucesso: ${result.message}`;
+		statusDiv.textContent = `Success: ${result.message}`;
 		statusDiv.style.color = 'green';
 	} else {
-		statusDiv.textContent = `Falha: ${result.message}`;
+		statusDiv.textContent = `${result.message}`;
 		statusDiv.style.color = 'red';
 	}
 
