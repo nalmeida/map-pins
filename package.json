@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
+    "dev": "electron .",
     "build:mac": "npx electron-builder --mac",
     "build:win": "npx electron-builder --win"
   },

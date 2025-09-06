@@ -2,6 +2,8 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const { generateMultipleMapsFromCsv } = require('./generate');
 
+const appVersion = app.getVersion();
+
 function createWindow() {
 	const mainWindow = new BrowserWindow({
 		width: 800,
@@ -54,4 +56,8 @@ ipcMain.handle('start-generation', async (event, { csvPath, outputPath }) => {
 	} catch (error) {
 		return { success: false, message: `Erro: ${error.message}` };
 	}
+});
+
+ipcMain.handle('get-app-version', () => {
+	return appVersion;
 });

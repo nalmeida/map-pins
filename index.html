@@ -1,34 +1,42 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Gerador de Mapas</title>
-    <style>
-        body { font-family: sans-serif; padding: 20px; }
-        .container { max-width: 600px; margin: auto; }
-        input[type="file"], input[type="text"] { width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box; }
-        button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; }
-        button:hover { background-color: #0056b3; }
-        #status { margin-top: 20px; font-weight: bold; }
-    </style>
+	<meta charset="UTF-8">
+	<title>Gerador de Mapas</title>
+	<style>
+		body { font-family: sans-serif; padding: 20px; }
+		.container { max-width: 600px; margin: auto; }
+		input[type="file"], input[type="text"] { width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box; }
+		button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+		button:hover { background-color: #0056b3; }
+		#status { margin-top: 20px; font-weight: bold; }
+		#version {
+			position: fixed;
+			bottom: 10px;
+			right: 10px;
+			font-size: 0.8em;
+			color: #888;
+		}
+	</style>
 </head>
 <body>
-    <div class="container">
-        <h1>Gerador de Mapas a partir de CSV</h1>
-        
-        <p>Selecione o arquivo CSV de origem:</p>
-        <input type="text" id="csvPath" placeholder="Caminho do arquivo CSV" readonly>
-        <button id="selectCsvButton">Selecionar CSV</button>
+	<div class="container">
+		<h1>Gerador de Mapas a partir de CSV</h1>
+		
+		<p>Selecione o arquivo CSV de origem:</p>
+		<input type="text" id="csvPath" placeholder="Caminho do arquivo CSV" readonly>
+		<button id="selectCsvButton">Selecionar CSV</button>
 
-        <p>Selecione a pasta de destino para as imagens PNG:</p>
-        <input type="text" id="outputPath" placeholder="Caminho da pasta de destino" readonly>
-        <button id="selectOutputButton">Selecionar Pasta</button>
+		<p>Selecione a pasta de destino para as imagens PNG:</p>
+		<input type="text" id="outputPath" placeholder="Caminho da pasta de destino" readonly>
+		<button id="selectOutputButton">Selecionar Pasta</button>
 
-        <hr>
-        <button id="generateButton">Gerar Imagens</button>
-        <div id="status"></div>
-    </div>
-    
-    <script src="renderer.js"></script>
+		<hr>
+		<button id="generateButton">Gerar Imagens</button>
+		<div id="status"></div>
+	</div>
+	<div id="version"></div>
+	
+	<script src="renderer.js"></script>
 </body>
 </html>

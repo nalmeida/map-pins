@@ -42,3 +42,15 @@ generateButton.addEventListener('click', async () => {
 
 	generateButton.disabled = false;
 });
+
+async function setAppVersion() {
+	const versionDiv = document.getElementById('version');
+	const version = await window.electronAPI.getAppVersion();
+	if (version) {
+		versionDiv.textContent = `v${version}`;
+	}
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+	setAppVersion();
+})
