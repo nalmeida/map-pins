@@ -23,26 +23,41 @@ generateButton.addEventListener('click', async () => {
 	const csvPath = csvPathInput.value;
 	const outputPath = outputPathInput.value;
 
-	// --- Validação 1: Campos Vazios ---
 	if (!csvPath || !outputPath) {
-		statusDiv.textContent = 'Please, select a CSV file and the destination folder.';
+		statusDiv.textContent = 'Please select the CSV file and the destination folder.';
 		statusDiv.style.color = 'red';
-		return; // Sai da função, impedindo a execução
+		return;
 	}
 
-	statusDiv.textContent = 'Generating...';
-	statusDiv.style.color = 'black'; // Reseta a cor para o padrão
+	statusDiv.textContent = 'Starting generation...';
+	statusDiv.style.color = 'black';
 	generateButton.disabled = true;
 
-	// Chama a função de geração no processo principal
 	const result = await window.electronAPI.startGeneration({ csvPath, outputPath });
 
 	if (result.success) {
-		statusDiv.textContent = `Success: ${result.message}`;
+		statusDiv.innerHTML = '';
 		statusDiv.style.color = 'green';
+
+		const successMessage = document.createElement('span');
+		successMessage.textContent = 'Maps generated!\n';
+
+		const folderLink = document.createElement('a');
+		folderLink.href = '#';
+		folderLink.textContent = `Open folder: ${result.outputPath}`;
+
+		folderLink.addEventListener('click', async (e) => {
+			e.preventDefault();
+			await window.electronAPI.openFolder(result.outputPath);
+		});
+
+		statusDiv.appendChild(successMessage);
+		statusDiv.appendChild(folderLink);
+
 	} else {
-		statusDiv.textContent = `${result.message}`;
+		statusDiv.innerHTML = '';
 		statusDiv.style.color = 'red';
+		statusDiv.textContent = `Failure: ${result.message}`;
 	}
 
 	generateButton.disabled = false;

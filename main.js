@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const { generateMultipleMapsFromCsv } = require('./generate');
 
@@ -52,9 +52,18 @@ ipcMain.handle('select-folder', async () => {
 ipcMain.handle('start-generation', async (event, { csvPath, outputPath }) => {
 	try {
 		await generateMultipleMapsFromCsv(csvPath, outputPath);
-		return { success: true, message: 'Maps generated!\n' + outputPath };
+		return { success: true, message: 'Maps generated!', outputPath: outputPath };
 	} catch (error) {
 		return { success: false, message: `Error: ${error.message}` };
+	}
+});
+
+ipcMain.handle('open-folder', async (event, folderPath) => {
+	try {
+		await shell.openPath(folderPath);
+		return { success: true };
+	} catch (error) {
+		return { success: false, message: `Could not open folder: ${error.message}` };
 	}
 });
 
