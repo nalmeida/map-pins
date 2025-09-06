@@ -1,0 +1,38 @@
+{
+  "name": "map-pins",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+    "build": {
+    "appId": "com.seuapp.geradormapas",
+    "mac": {
+      "category": "public.app-category.utilities"
+    },
+    "win": {
+      "target": "portable"
+    },
+    "files": [
+      "main.js",
+      "renderer.js",
+      "preload.js",
+      "index.html",
+      "generate.js",
+      "node_modules",
+      "package.json"
+    ]
+  },
+  "devDependencies": {
+    "electron": "^38.0.0",
+    "electron-builder": "^26.0.12"
+  },
+  "dependencies": {
+    "csv-parser": "^3.2.0",
+    "puppeteer": "^24.19.0"
+  }
+}

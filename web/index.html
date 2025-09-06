@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map Generator with Pins</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #FBF8EC;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: #4C4B4A;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .controls {
+            background-color: #ECE0CD;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #4C4B4A;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #F2496B;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: #F2496B;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        
+        #map {
+            width: 1024px;
+            height: 768px;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            margin: 0 auto;
+        }
+
+        .stats {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+            background-color: #F8EFE3;
+            border-radius: 8px;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #F2496B;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #777;
+            margin-top: 5px;
+        }
+        
+        .error {
+            background-color: #dc3545;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .success {
+            background-color: #28a745;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .config-group {
+            background-color: #F8EFE3;
+            border: 1px solid #E1D9C8;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .config-group h4 {
+            margin-bottom: 15px;
+            color: #4C4B4A;
+            font-size: 1.2rem;
+        }
+
+        .config-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .config-item label {
+            flex: 1;
+            margin-bottom: 0;
+            color: #555;
+        }
+
+        .config-item input, .config-item select {
+            flex: 2;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .leaflet-popup-content {
+            font-family: Arial, sans-serif;
+        }
+
+        .hide-on-export .leaflet-control-zoom,
+        .hide-on-export .leaflet-control-attribution {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗺️ Map Generator with Pins</h1>
+            <p>Create interactive maps with multiple points and customize them</p>
+        </div>
+        
+        <div class="controls">
+            <div class="input-group">
+                <label for="coordinates">📍 Coordinates List (Latitude, Longitude, Location Name):</label>
+                <textarea id="coordinates" rows="8" placeholder="Example:
+-23.5505, -46.6333, São Paulo
+-22.9068, -43.1729, Rio de Janeiro
+-19.9167, -43.9345, Belo Horizonte
+
+Format: latitude, longitude, location name (optional)
+Separate by comma, one location per line"></textarea>
+            </div>
+
+            <div class="config-group">
+                <h4>⚙️ Settings</h4>
+                <div class="config-item">
+                    <label for="mapStyle">Map Style:</label>
+                    <select id="mapStyle">
+                        <option value="openstreetmap">OpenStreetMap Standard</option>
+                        <option value="cartodb-dark">CartoDB DarkMatter</option>
+                        <option value="cartodb-positron">CartoDB Positron</option>
+                        <option value="stamen-toner">Stamen Toner</option>
+                        <option value="stamen-watercolor">Stamen Watercolor</option>
+                    </select>
+                </div>
+                <div class="config-item">
+                    <label for="initialZoom">Initial Zoom (1-18):</label>
+                    <input type="number" id="initialZoom" value="11" min="1" max="18">
+                </div>
+                <div class="config-item">
+                    <label for="pinColor">Pin Color:</label>
+                    <input type="color" id="pinColor" value="#F2496B">
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button class="btn" onclick="generateMap()">🗺️ Generate Map</button>
+                <button class="btn" onclick="loadExample()">📋 30 SP Pins</button>
+                <button class="btn" onclick="exportMapAsImage()">📸 Export PNG</button>
+                <button class="btn" onclick="clearAll()">🧹 Clear All</button>
+            </div>
+            
+            <div id="message"></div>
+            
+            <div class="stats" id="stats" style="display: none;">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalPins">0</div>
+                        <div class="stat-label">Total Pins</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="validPins">0</div>
+                        <div class="stat-label">Valid Pins</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="invalidPins">0</div>
+                        <div class="stat-label">Invalid Pins</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="map"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script>
+        let map;
+        let markers = [];
+        
+        const mapStyles = {
+            'openstreetmap': 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            'cartodb-dark': 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+            'cartodb-positron': 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+            'stamen-toner': 'https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png',
+            'stamen-watercolor': 'https://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg'
+        };
+
+        function initMap() {
+            if (map) {
+                map.remove();
+            }
+            
+            const initialZoom = parseInt(document.getElementById('initialZoom').value, 10);
+            
+            map = L.map('map').setView([-23.5505, -46.6333], initialZoom);
+            
+            const selectedStyle = document.getElementById('mapStyle').value;
+            const tileLayerUrl = mapStyles[selectedStyle];
+
+            L.tileLayer(tileLayerUrl, {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom: 18
+            }).addTo(map);
+        }
+        
+        function clearMarkers() {
+            markers.forEach(marker => {
+                map.removeLayer(marker);
+            });
+            markers = [];
+        }
+
+        function createCustomMarker(lat, lng, title = '') {
+            const pinColor = document.getElementById('pinColor').value;
+            
+            const customIcon = L.divIcon({
+                className: 'custom-pin',
+                html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="${pinColor}" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-map-pin"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`,
+                iconSize: [24, 24],
+                iconAnchor: [12, 24],
+                popupAnchor: [0, -20]
+            });
+
+            const marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
+            
+            if (title) {
+                const popupContent = `
+                    <div>
+                        <h3 style="margin: 0 0 10px 0; color: #F2496B;">${title}</h3>
+                        <hr style="margin: 10px 0;">
+                        <small style="color: #666;">📍 ${lat.toFixed(4)}, ${lng.toFixed(4)}</small>
+                    </div>
+                `;
+                marker.bindPopup(popupContent);
+            }
+            
+            return marker;
+        }
+
+        function generateMap() {
+            const coordinatesText = document.getElementById('coordinates').value.trim();
+            const messageDiv = document.getElementById('message');
+            
+            initMap();
+            
+            if (!coordinatesText) {
+                showMessage('Please enter some coordinates!', 'error');
+                return;
+            }
+            
+            const lines = coordinatesText.split('\n').filter(line => line.trim());
+            let validCount = 0;
+            let invalidCount = 0;
+            const bounds = [];
+            
+            clearMarkers();
+            
+            lines.forEach((line, index) => {
+                const parts = line.split(',').map(part => part.trim());
+                
+                if (parts.length >= 2) {
+                    const lat = parseFloat(parts[0]);
+                    const lng = parseFloat(parts[1]);
+                    const title = parts[2] || '';
+                    
+                    if (!isNaN(lat) && !isNaN(lng) && 
+                        lat >= -90 && lat <= 90 && 
+                        lng >= -180 && lng <= 180) {
+                        
+                        const marker = createCustomMarker(lat, lng, title);
+                        markers.push(marker);
+                        bounds.push([lat, lng]);
+                        validCount++;
+                    } else {
+                        invalidCount++;
+                        console.warn(`Line ${index + 1}: Invalid coordinates - ${line}`);
+                    }
+                } else {
+                    invalidCount++;
+                    console.warn(`Line ${index + 1}: Invalid format - ${line}`);
+                }
+            });
+            
+            if (bounds.length > 0) {
+                if (bounds.length === 1) {
+                    map.setView(bounds[0], parseInt(document.getElementById('initialZoom').value, 10));
+                } else {
+                    map.fitBounds(bounds, { padding: [20, 20] });
+                }
+                
+                showMessage(`Map successfully generated! ${validCount} pins added.`, 'success');
+            } else {
+                showMessage('No valid coordinates found!', 'error');
+            }
+            
+            updateStats(lines.length, validCount, invalidCount);
+        }
+        
+        function exportMapAsImage() {
+            if (markers.length === 0) {
+                showMessage('Please generate a map before exporting!', 'error');
+                return;
+            }
+            
+            showMessage('📸 Generating image... Please wait a few seconds.', 'success');
+            
+            const mapElement = document.getElementById('map');
+            
+            mapElement.classList.add('hide-on-export');
+            
+            setTimeout(() => {
+                html2canvas(mapElement, {
+                    useCORS: true,
+                    allowTaint: true,
+                    scale: 1, // Remove o scale 2 para garantir as dimensões exatas de 1024x768
+                    width: mapElement.offsetWidth,
+                    height: mapElement.offsetHeight,
+                    backgroundColor: '#ffffff'
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = `map_pins_${new Date().toISOString().slice(0,10)}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    showMessage('✅ Image exported successfully!', 'success');
+                    
+                    mapElement.classList.remove('hide-on-export');
+                }).catch(error => {
+                    console.error('Error exporting image:', error);
+                    showMessage('❌ Error exporting image. Please try again.', 'error');
+                    
+                    mapElement.classList.remove('hide-on-export');
+                });
+            }, 500);
+        }
+
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `<div class="${type}">${text}</div>`;
+            
+            setTimeout(() => {
+                messageDiv.innerHTML = '';
+            }, 5000);
+        }
+        
+        function updateStats(total, valid, invalid) {
+            document.getElementById('totalPins').textContent = total;
+            document.getElementById('validPins').textContent = valid;
+            document.getElementById('invalidPins').textContent = invalid;
+            document.getElementById('stats').style.display = 'block';
+        }
+        
+        function loadExample() {
+            const exampleData = `-23.5505, -46.6333, São Paulo
+-23.5574, -46.6398, Bela Vista
+-23.5489, -46.6388, Liberdade
+-23.5613, -46.6291, Santa Cecília
+-23.5475, -46.6250, Consolação
+-23.5644, -46.6527, Perdizes
+-23.5617, -46.6729, Lapa
+-23.5336, -46.6258, Vila Madalena
+-23.5506, -46.6764, Pinheiros
+-23.5707, -46.6411, Higienópolis
+-23.5431, -46.6291, Jardins
+-23.5765, -46.6810, Pompéia
+-23.5590, -46.6544, Pacaembu
+-23.5395, -46.6255, Cerqueira César
+-23.5512, -46.6097, Aclimação
+-23.5278, -46.6631, Itaim Bibi
+-23.5436, -46.6812, Alto de Pinheiros
+-23.5698, -46.6178, Santa Efigênia
+-23.5819, -46.6331, Campos Elíseos
+-23.5344, -46.6058, Paraíso
+-23.5282, -46.6972, Vila Olímpia
+-23.5757, -46.6647, Barra Funda
+-23.5468, -46.5787, Ipiranga
+-23.5945, -46.6419, Casa Verde
+-23.5152, -46.6398, Brooklin
+-23.5077, -46.6181, Moema
+-23.5234, -46.7031, Morumbi
+-23.5656, -46.7344, Osasco
+-23.4668, -46.5436, São Bernardo
+-23.6868, -46.6200, Guarulhos`;
+            
+            document.getElementById('coordinates').value = exampleData;
+            showMessage('✅ 30 São Paulo points loaded! Click "Generate Map" to visualize.', 'success');
+        }
+        
+        function clearAll() {
+            document.getElementById('coordinates').value = '';
+            clearMarkers();
+            document.getElementById('stats').style.display = 'none';
+            initMap();
+            showMessage('✅ Data cleared successfully!', 'success');
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+        });
+    </script>
+</body>
+</html>
