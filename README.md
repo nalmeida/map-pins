@@ -3,7 +3,7 @@
 # 🗺️ Map Pins
 
 <p align="center">
-	<img src="./github/map_sample.png" alt="Map Pins Sample" width="500"/>
+	<img src="./.github/map_sample.png" alt="Map Pins Sample" width="500"/>
 </p>
 
 
