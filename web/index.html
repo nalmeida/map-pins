@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Multi-Map Generator</title>
+  <title>Multi-Map Generator - v2.0.0</title>
+  <meta name="author" content="nalmeida">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
@@ -95,7 +96,11 @@
     }
 
     .btn.positive {
-      background-color: #034036;
+      background-color: #034036; /* Terciary 800*/
+    }
+
+    .btn.positive2 {
+      background-color: #453175;
     }
 
     .btn.neutral {
@@ -239,7 +244,7 @@
   <div class="container">
     <div class="header">
       <h1>🗺️ Multi-Map Generator</h1>
-      <p>Generate multiple maps from a single list of pins</p>
+      <p>Generate multiple maps from a single list of pins <code>v2.0.0</code></p>
     </div>
 
     <div class="controls">
@@ -289,6 +294,7 @@ The first column is the map ID. Multiple lines with the same ID will appear on t
 
       <div class="button-group">
         <button class="btn positive" onclick="generateMaps()">🗺️ Generate All Maps</button>
+        <button class="btn positive2" onclick="exportAllMaps()">📸 Export All Images</button>
         <button class="btn neutral" onclick="loadExample()">📋 Load Example</button>
         <button class="btn neutral" onclick="clearAll()">🧹 Clear All</button>
       </div>
@@ -446,42 +452,64 @@ The first column is the map ID. Multiple lines with the same ID will appear on t
       showMessage(`✅ ${Object.keys(mapData).length} map(s) generated successfully!`, 'success');
     }
 
-    function exportMapAsImage(mapId) {
-      const mapElement = document.getElementById(mapId);
-      if (!mapElement) {
-        showMessage('Error: Map element not found!', 'error');
+    async function exportMapAsImage(mapId) {
+      return new Promise((resolve, reject) => {
+        const mapElement = document.getElementById(mapId);
+        if (!mapElement) {
+          showMessage('Error: Map element not found!', 'error');
+          return reject('Map element not found.');
+        }
+
+        showMessage(`📸 Generating image for map "${mapId}"...`, 'success');
+
+        mapElement.classList.add('hide-on-export');
+
+        setTimeout(() => {
+          html2canvas(mapElement, {
+            useCORS: true,
+            allowTaint: true,
+            scale: 1, 
+            width: mapElement.offsetWidth,
+            height: mapElement.offsetHeight,
+            backgroundColor: '#ffffff'
+          }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = `${mapId}.png`;
+            link.href = canvas.toDataURL('image/png');
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showMessage(`✅ Image "${mapId}.png" exported successfully!`, 'success');
+            mapElement.classList.remove('hide-on-export');
+            resolve();
+          }).catch(error => {
+            console.error('Error exporting image:', error);
+            showMessage('❌ Error exporting image. Please try again.', 'error');
+            mapElement.classList.remove('hide-on-export');
+            reject(error);
+          });
+        }, 500);
+      });
+    }
+
+    async function exportAllMaps() {
+      const mapIds = Object.keys(maps);
+      if (mapIds.length === 0) {
+        showMessage('No maps to export! Please generate maps first.', 'error');
         return;
       }
-
-      showMessage(`📸 Generating image for map "${mapId}"...`, 'success');
-
-      mapElement.classList.add('hide-on-export');
-
-      setTimeout(() => {
-        html2canvas(mapElement, {
-          useCORS: true,
-          allowTaint: true,
-          scale: 1, 
-          width: mapElement.offsetWidth,
-          height: mapElement.offsetHeight,
-          backgroundColor: '#ffffff'
-        }).then(canvas => {
-          const link = document.createElement('a');
-          link.download = `${mapId}.png`;
-          link.href = canvas.toDataURL('image/png');
-
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-
-          showMessage(`✅ Image "${mapId}.png" exported successfully!`, 'success');
-          mapElement.classList.remove('hide-on-export');
-        }).catch(error => {
-          console.error('Error exporting image:', error);
-          showMessage('❌ Error exporting image. Please try again.', 'error');
-          mapElement.classList.remove('hide-on-export');
-        });
-      }, 500);
+      showMessage(`🎬 Starting to export ${mapIds.length} maps...`, 'success');
+      
+      for (const mapId of mapIds) {
+        try {
+          await exportMapAsImage(mapId);
+        } catch (error) {
+          console.error(`Failed to export map ${mapId}:`, error);
+        }
+      }
+      showMessage(`🎉 All ${mapIds.length} maps have been exported!`, 'success');
     }
 
     function loadExample() {
@@ -507,8 +535,6 @@ mapa_bh,-19.9167, -43.9345, Belo Horizonte`;
       }
       showMessage('✅ Data cleared successfully!', 'success');
     }
-
-    // --- Novas Funções para localStorage ---
 
     const configInputs = ['mapStyle', 'pinColor', 'initialZoom', 'mapWidth', 'mapHeight'];
 
@@ -536,16 +562,12 @@ mapa_bh,-19.9167, -43.9345, Belo Horizonte`;
       }
     }
 
-    // --- Event Listeners para acionar o salvamento ---
-
     document.addEventListener('DOMContentLoaded', () => {
       loadConfig();
-      // Adiciona um listener para cada input de configuração para salvar as mudanças
       configInputs.forEach(id => {
         const element = document.getElementById(id);
         if (element) {
           element.addEventListener('change', saveConfig);
-          // O input de texto para cor é 'input' para capturar mudanças em tempo real
           if (id === 'pinColor') {
             element.addEventListener('input', saveConfig);
           }
