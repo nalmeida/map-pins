@@ -1,254 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Multi-Map Generator</title>
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-	<style>
-		* {
-			margin: 0;
-			padding: 0;
-			box-sizing: border-box;
-		}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-Map Generator</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-		body {
-			font-family: Arial, sans-serif;
-			background-color: #FBF8EC;
-			min-height: 100vh;
-		}
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #FBF8EC;
+      min-height: 100vh;
+    }
 
-		.container {
-			max-width: 1400px;
-			margin: 0 auto;
-			padding: 20px;
-		}
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
 
-		.header {
-			text-align: center;
-			color: #4C4B4A;
-			margin-bottom: 30px;
-		}
+    .header {
+      text-align: center;
+      color: #4C4B4A;
+      margin-bottom: 30px;
+    }
 
-		.header h1 {
-			font-size: 2.5rem;
-			margin-bottom: 10px;
-			text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-		}
+    .header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    }
 
-		.controls {
-			background-color: #ECE0CD;
-			border-radius: 15px;
-			padding: 25px;
-			margin-bottom: 20px;
-			box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-		}
+    .controls {
+      background-color: #ECE0CD;
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
 
-		.input-group {
-			margin-bottom: 20px;
-		}
+    .input-group {
+      margin-bottom: 20px;
+    }
 
-		.input-group label {
-			display: block;
-			margin-bottom: 8px;
-			font-weight: bold;
-			color: #4C4B4A;
-		}
+    .input-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #4C4B4A;
+    }
 
-		textarea {
-			width: 100%;
-			padding: 12px;
-			border: 2px solid #ddd;
-			border-radius: 8px;
-			font-family: 'Courier New', monospace;
-			font-size: 14px;
-			resize: vertical;
-			transition: border-color 0.3s ease;
-		}
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      resize: vertical;
+      transition: border-color 0.3s ease;
+    }
 
-		textarea:focus {
-			outline: none;
-			border-color: #F2496B;
-		}
+    textarea:focus {
+      outline: none;
+      border-color: #F2496B;
+    }
 
-		.button-group {
-			display: flex;
-			gap: 15px;
-			flex-wrap: wrap;
-			margin-bottom: 20px;
-		}
+    .button-group {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
 
-		.btn {
-			padding: 12px 24px;
-			border: none;
-			border-radius: 50px;
-			cursor: pointer;
-			font-weight: bold;
-			transition: all 0.3s ease;
-			display: inline-flex;
-			align-items: center;
-			gap: 8px;
-			background-color: #F2496B;
-			color: white;
-			box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-		}
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background-color: #F2496B;
+      color: white;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
 
-		.btn.positive {
-			background-color: #034036;
-		}
+    .btn.positive {
+      background-color: #034036;
+    }
 
-		.btn.neutral {
-			background-color: transparent;
-			color: #857F76;
-			border: 2px solid #857F76; /* Neutral 500*/
-		}
+    .btn.neutral {
+      background-color: transparent;
+      color: #857F76;
+      border: 2px solid #857F76;
+    }
 
-		.btn:hover {
-			transform: translateY(-2px);
-			box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-		}
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
 
+    .map-container {
+      margin-bottom: 30px;
+      padding: 15px;
+      border-radius: 15px;
+      background-color: #fff;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
 
-		.map-container {
-			margin-bottom: 30px;
-			padding: 15px;
-			border-radius: 15px;
-			background-color: #fff;
-			box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-		}
+    .map-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
 
-		.map-header {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			margin-bottom: 10px;
-		}
+    .map-header h2 {
+      font-size: 1.5rem;
+      color: #4C4B4A;
+    }
 
-		.map-header h2 {
-			font-size: 1.5rem;
-			color: #4C4B4A;
-		}
+    .map-header .btn {
+      padding: 8px 16px;
+      font-size: 0.9rem;
+    }
+    
+    .map {
+      background: white;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
 
-		.map-header .btn {
-			padding: 8px 16px;
-			font-size: 0.9rem;
-		}
+    .stats {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
 
-		.map {
-			width: 700px;
-			height: 350px;
-			background: white;
-			border-radius: 15px;
-			overflow: hidden;
-			box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-		}
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+    }
 
-		.stats {
-			background-color: rgba(255, 255, 255, 0.9);
-			padding: 15px;
-			border-radius: 10px;
-			margin-bottom: 15px;
-			box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-		}
+    .stat-item {
+      text-align: center;
+      padding: 10px;
+      background-color: #F8EFE3;
+      border-radius: 8px;
+    }
 
-		.stats-grid {
-			display: grid;
-			grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-			gap: 15px;
-		}
+    .stat-number {
+      font-size: 24px;
+      font-weight: bold;
+      color: #F2496B;
+    }
 
-		.stat-item {
-			text-align: center;
-			padding: 10px;
-			background-color: #F8EFE3;
-			border-radius: 8px;
-		}
+    .stat-label {
+      font-size: 12px;
+      color: #777;
+      margin-top: 5px;
+    }
 
-		.stat-number {
-			font-size: 24px;
-			font-weight: bold;
-			color: #F2496B;
-		}
+    .error {
+      background-color: #dc3545;
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
 
-		.stat-label {
-			font-size: 12px;
-			color: #777;
-			margin-top: 5px;
-		}
+    .success {
+      background-color: #28a745;
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
 
-		.error {
-			background-color: #dc3545;
-			color: white;
-			padding: 15px;
-			border-radius: 8px;
-			margin-bottom: 15px;
-		}
+    .config-group {
+      background-color: #F8EFE3;
+      border: 1px solid #E1D9C8;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
 
-		.success {
-			background-color: #28a745;
-			color: white;
-			padding: 15px;
-			border-radius: 8px;
-			margin-bottom: 15px;
-		}
+    .config-group h4 {
+      margin-bottom: 15px;
+      color: #4C4B4A;
+      font-size: 1.2rem;
+    }
 
-		.config-group {
-			background-color: #F8EFE3;
-			border: 1px solid #E1D9C8;
-			padding: 15px;
-			border-radius: 10px;
-			margin-top: 20px;
-			margin-bottom: 20px;
-		}
+    .config-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
 
-		.config-group h4 {
-			margin-bottom: 15px;
-			color: #4C4B4A;
-			font-size: 1.2rem;
-		}
+    .config-item label {
+      flex: 1;
+      margin-bottom: 0;
+      color: #555;
+    }
 
-		.config-item {
-			display: flex;
-			align-items: center;
-			margin-bottom: 10px;
-		}
+    .config-item input,
+    .config-item select {
+      flex: 2;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
 
-		.config-item label {
-			flex: 1;
-			margin-bottom: 0;
-			color: #555;
-		}
+    .leaflet-popup-content {
+      font-family: Arial, sans-serif;
+    }
 
-		.config-item input,
-		.config-item select {
-			flex: 2;
-			padding: 8px;
-			border: 1px solid #ddd;
-			border-radius: 5px;
-		}
-
-		.leaflet-popup-content {
-			font-family: Arial, sans-serif;
-		}
-
-		.hide-on-export .leaflet-control-zoom,
-		.hide-on-export .leaflet-control-attribution {
-			display: none !important;
-		}
-	</style>
+    .hide-on-export .leaflet-control-zoom,
+    .hide-on-export .leaflet-control-attribution {
+      display: none !important;
+    }
+  </style>
 </head>
 <body>
-	<div class="container">
-		<div class="header">
-			<h1>🗺️ Multi-Map Generator</h1>
-			<p>Generate multiple maps from a single list of pins</p>
-		</div>
+  <div class="container">
+    <div class="header">
+      <h1>🗺️ Multi-Map Generator</h1>
+      <p>Generate multiple maps from a single list of pins</p>
+    </div>
 
-		<div class="controls">
-			<div class="input-group">
-				<label for="coordinates">📍 Coordinates List:</label>
-				<textarea id="coordinates" rows="8" placeholder="Format:
+    <div class="controls">
+      <div class="input-group">
+        <label for="coordinates">📍 Coordinates List:</label>
+        <textarea id="coordinates" rows="8" placeholder="Format:
 map_id,lat,long,name
 
 Example:
@@ -258,257 +255,267 @@ mapa_rj,-22.9068, -43.1729, Rio de Janeiro
 mapa_rj,-22.9038, -43.1818, Copacabana
 
 The first column is the map ID. Multiple lines with the same ID will appear on the same map."></textarea>
-			</div>
+      </div>
 
-			<div class="config-group">
-				<h4>⚙️ Settings</h4>
-				<div class="config-item">
-					<label for="mapStyle">Map Style:</label>
-					<select id="mapStyle">
-						<option value="cartodb-positron" selected>CartoDB Positron</option>
-						<option value="openstreetmap">OpenStreetMap Standard</option>
-						<option value="cartodb-dark">CartoDB DarkMatter</option>
-						<option value="stamen-toner">Stamen Toner</option>
-						<option value="stamen-watercolor">Stamen Watercolor</option>
-					</select>
-				</div>
-				<div class="config-item">
-					<label for="pinColor">Pin Color:</label>
-					<input type="color" id="pinColor" value="#F2496B">
-				</div>
-				<div class="config-item">
-					<label for="initialZoom">Initial Zoom (1-18):</label>
-					<input type="number" id="initialZoom" value="11" min="1" max="18">
-				</div>
-			</div>
+      <div class="config-group">
+        <h4>⚙️ Settings</h4>
+        <div class="config-item">
+          <label for="mapStyle">Map Style:</label>
+          <select id="mapStyle">
+            <option value="cartodb-positron" selected>CartoDB Positron</option>
+            <option value="openstreetmap">OpenStreetMap Standard</option>
+            <option value="cartodb-dark">CartoDB DarkMatter</option>
+            <option value="stamen-toner">Stamen Toner</option>
+            <option value="stamen-watercolor">Stamen Watercolor</option>
+          </select>
+        </div>
+        <div class="config-item">
+          <label for="pinColor">Pin Color (Hex):</label>
+          <input type="text" id="pinColor" value="#F2496B">
+        </div>
+        <div class="config-item">
+          <label for="initialZoom">Initial Zoom (1-18):</label>
+          <input type="number" id="initialZoom" value="11" min="1" max="18">
+        </div>
+        <div class="config-item">
+          <label for="mapWidth">Map Width (px):</label>
+          <input type="number" id="mapWidth" value="700" min="100">
+        </div>
+        <div class="config-item">
+          <label for="mapHeight">Map Height (px):</label>
+          <input type="number" id="mapHeight" value="350" min="100">
+        </div>
+      </div>
 
-			<div class="button-group">
-				<button class="btn positive" onclick="generateMaps()">🗺️ Generate All Maps</button>
-				<button class="btn neutral" onclick="loadExample()">📋 Load Example</button>
-				<button class="btn neutral" onclick="clearAll()">🧹 Clear All</button>
-			</div>
+      <div class="button-group">
+        <button class="btn positive" onclick="generateMaps()">🗺️ Generate All Maps</button>
+        <button class="btn neutral" onclick="loadExample()">📋 Load Example</button>
+        <button class="btn neutral" onclick="clearAll()">🧹 Clear All</button>
+      </div>
 
-			<div id="message"></div>
-		</div>
+      <div id="message"></div>
+    </div>
 
-		<div id="maps-container"></div>
-	</div>
+    <div id="maps-container"></div>
+  </div>
 
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-	<script>
-		const maps = {}; // Objeto para armazenar as instâncias dos mapas e marcadores
-		
-		const mapStyles = {
-			'openstreetmap': 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-			'cartodb-dark': 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-			'cartodb-positron': 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-			'stamen-toner': 'https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png',
-			'stamen-watercolor': 'https://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg'
-		};
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script>
+    const maps = {};
+    
+    const mapStyles = {
+      'openstreetmap': 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      'cartodb-dark': 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+      'cartodb-positron': 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+      'stamen-toner': 'https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png',
+      'stamen-watercolor': 'https://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg'
+    };
 
-		function showMessage(text, type) {
-			const messageDiv = document.getElementById('message');
-			messageDiv.innerHTML = `<div class="${type}">${text}</div>`;
+    function showMessage(text, type) {
+      const messageDiv = document.getElementById('message');
+      messageDiv.innerHTML = `<div class="${type}">${text}</div>`;
 
-			setTimeout(() => {
-				messageDiv.innerHTML = '';
-			}, 5000);
-		}
+      setTimeout(() => {
+        messageDiv.innerHTML = '';
+      }, 5000);
+    }
 
-		function createCustomMarker(lat, long, title = '') {
-			const pinColor = document.getElementById('pinColor').value;
-			
-			const customIcon = L.divIcon({
-				className: 'custom-pin',
-				html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="${pinColor}" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-map-pin"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`,
-				iconSize: [24, 24],
-				iconAnchor: [12, 24],
-				popupAnchor: [0, -20]
-			});
+    function createCustomMarker(lat, long, title = '') {
+      const pinColor = document.getElementById('pinColor').value;
+      
+      const customIcon = L.divIcon({
+        className: 'custom-pin',
+        html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="${pinColor}" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-map-pin"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 24],
+        popupAnchor: [0, -20]
+      });
 
-			const marker = L.marker([lat, long], { icon: customIcon });
+      const marker = L.marker([lat, long], { icon: customIcon });
 
-			if (title) {
-				const popupContent = `
-					<div>
-						<h3 style="margin: 0 0 10px 0; color: #F2496B;">${title}</h3>
-						<hr style="margin: 10px 0;">
-						<small style="color: #666;">📍 ${lat.toFixed(4)}, ${long.toFixed(4)}</small>
-					</div>
-				`;
-				marker.bindPopup(popupContent);
-			}
-			
-			return marker;
-		}
+      if (title) {
+        const popupContent = `
+          <div>
+            <h3 style="margin: 0 0 10px 0; color: #F2496B;">${title}</h3>
+            <hr style="margin: 10px 0;">
+            <small style="color: #666;">📍 ${lat.toFixed(4)}, ${long.toFixed(4)}</small>
+          </div>
+        `;
+        marker.bindPopup(popupContent);
+      }
+      
+      return marker;
+    }
 
-		// Funçao adaptada para gerar multiplos mapas
-		function generateMaps() {
-			const coordinatesText = document.getElementById('coordinates').value.trim();
-			const mapsContainer = document.getElementById('maps-container');
-			
-			if (!coordinatesText) {
-				showMessage('Please enter some coordinates!', 'error');
-				return;
-			}
+    // Funçao adaptada para gerar multiplos mapas
+    function generateMaps() {
+      const coordinatesText = document.getElementById('coordinates').value.trim();
+      const mapsContainer = document.getElementById('maps-container');
+      const mapWidth = document.getElementById('mapWidth').value;
+      const mapHeight = document.getElementById('mapHeight').value;
+      
+      if (!coordinatesText) {
+        showMessage('Please enter some coordinates!', 'error');
+        return;
+      }
 
-			// Limpa os mapas anteriores
-			mapsContainer.innerHTML = '';
-			for (let mapId in maps) {
-				if (maps[mapId].instance) {
-					maps[mapId].instance.remove();
-				}
-			}
-			
-			// Reorganiza os dados por ID de mapa
-			const mapData = {};
-			const lines = coordinatesText.split('\n').filter(line => line.trim());
+      // Limpa os mapas anteriores
+      mapsContainer.innerHTML = '';
+      for (let mapId in maps) {
+        if (maps[mapId].instance) {
+          maps[mapId].instance.remove();
+        }
+      }
+      
+      // Reorganiza os dados por ID de mapa
+      const mapData = {};
+      const lines = coordinatesText.split('\n').filter(line => line.trim());
 
-			lines.forEach((line) => {
-				const parts = line.split(',').map(part => part.trim());
-				if (parts.length >= 3) {
-					const mapId = parts[0];
-					const lat = parseFloat(parts[1]);
-					const long = parseFloat(parts[2]);
-					const title = parts[3] || '';
+      lines.forEach((line) => {
+        const parts = line.split(',').map(part => part.trim());
+        if (parts.length >= 3) {
+          const mapId = parts[0];
+          const lat = parseFloat(parts[1]);
+          const long = parseFloat(parts[2]);
+          const title = parts[3] || '';
 
-					if (!mapData[mapId]) {
-						mapData[mapId] = [];
-					}
-					mapData[mapId].push({ lat, long, title });
-				}
-			});
+          if (!mapData[mapId]) {
+            mapData[mapId] = [];
+          }
+          mapData[mapId].push({ lat, long, title });
+        }
+      });
 
-			if (Object.keys(mapData).length === 0) {
-				showMessage('No valid coordinates found!', 'error');
-				return;
-			}
-			
-			// Gera os elementos HTML e os mapas
-			for (const mapId in mapData) {
-				if (mapData.hasOwnProperty(mapId)) {
-					const points = mapData[mapId];
+      if (Object.keys(mapData).length === 0) {
+        showMessage('No valid coordinates found!', 'error');
+        return;
+      }
+      
+      // Gera os elementos HTML e os mapas
+      for (const mapId in mapData) {
+        if (mapData.hasOwnProperty(mapId)) {
+          const points = mapData[mapId];
 
-					// Cria o contêiner para o mapa
-					const mapContainer = document.createElement('div');
-					mapContainer.className = 'map-container';
-					mapContainer.innerHTML = `
-						<div class="map-header">
-							<h2>${mapId}</h2>
-							<button class="btn" onclick="exportMapAsImage('${mapId}')">📸 Export PNG</button>
-						</div>
-						<div id="${mapId}" class="map"></div>
-					`;
-					mapsContainer.appendChild(mapContainer);
-				
-					// Inicializa o mapa do Leaflet
-					const mapElement = document.getElementById(mapId);
-					const initialZoom = parseInt(document.getElementById('initialZoom').value, 10);
-					const mapInstance = L.map(mapId, {
-						zoomControl: false,
-						attributionControl: false
-					}).setView([0, 0], initialZoom);
+          // Cria o contêiner para o mapa
+          const mapContainer = document.createElement('div');
+          mapContainer.className = 'map-container';
+          mapContainer.innerHTML = `
+            <div class="map-header">
+              <h2>${mapId}</h2>
+              <button class="btn" onclick="exportMapAsImage('${mapId}')">📸 Export PNG</button>
+            </div>
+            <div id="${mapId}" class="map" style="width: ${mapWidth}px; height: ${mapHeight}px;"></div>
+          `;
+          mapsContainer.appendChild(mapContainer);
+        
+          // Inicializa o mapa do Leaflet
+          const mapElement = document.getElementById(mapId);
+          const initialZoom = parseInt(document.getElementById('initialZoom').value, 10);
+          const mapInstance = L.map(mapId, {
+            zoomControl: false,
+            attributionControl: false
+          }).setView([0, 0], initialZoom);
 
-					const selectedStyle = document.getElementById('mapStyle').value;
-					const tileLayerUrl = mapStyles[selectedStyle];
+          const selectedStyle = document.getElementById('mapStyle').value;
+          const tileLayerUrl = mapStyles[selectedStyle];
 
-					L.tileLayer(tileLayerUrl, {
-						attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-						maxZoom: 18
-					}).addTo(mapInstance);
-					
-					// Adiciona os marcadores e ajusta o zoom
-					const markers = [];
-					const bounds = [];
-					points.forEach(point => {
-						if (!isNaN(point.lat) && !isNaN(point.long)) {
-							const marker = createCustomMarker(point.lat, point.long, point.title);
-							marker.addTo(mapInstance);
-							markers.push(marker);
-							bounds.push([point.lat, point.long]);
-						}
-					});
+          L.tileLayer(tileLayerUrl, {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 18
+          }).addTo(mapInstance);
+          
+          // Adiciona os marcadores e ajusta o zoom
+          const markers = [];
+          const bounds = [];
+          points.forEach(point => {
+            if (!isNaN(point.lat) && !isNaN(point.long)) {
+              const marker = createCustomMarker(point.lat, point.long, point.title);
+              marker.addTo(mapInstance);
+              markers.push(marker);
+              bounds.push([point.lat, point.long]);
+            }
+          });
 
-					if (bounds.length > 0) {
-						if (bounds.length === 1) {
-							mapInstance.setView(bounds[0], initialZoom);
-						} else {
-							mapInstance.fitBounds(bounds, { padding: [20, 20] });
-						}
-					}
+          if (bounds.length > 0) {
+            if (bounds.length === 1) {
+              mapInstance.setView(bounds[0], initialZoom);
+            } else {
+              mapInstance.fitBounds(bounds, { padding: [20, 20] });
+            }
+          }
 
-					// Armazena a instância do mapa para uso posterior
-					maps[mapId] = {
-						instance: mapInstance,
-						markers: markers,
-					};
-				}
-			}
-			showMessage(`✅ ${Object.keys(mapData).length} map(s) generated successfully!`, 'success');
-		}
+          // Armazena a instância do mapa para uso posterior
+          maps[mapId] = {
+            instance: mapInstance,
+            markers: markers,
+          };
+        }
+      }
+      showMessage(`✅ ${Object.keys(mapData).length} map(s) generated successfully!`, 'success');
+    }
 
-		// Funcao adaptada para exportar o mapa especifico
-		function exportMapAsImage(mapId) {
-			const mapElement = document.getElementById(mapId);
-			if (!mapElement) {
-				showMessage('Error: Map element not found!', 'error');
-				return;
-			}
+    // Funcao adaptada para exportar o mapa especifico
+    function exportMapAsImage(mapId) {
+      const mapElement = document.getElementById(mapId);
+      if (!mapElement) {
+        showMessage('Error: Map element not found!', 'error');
+        return;
+      }
 
-			showMessage(`📸 Generating image for map "${mapId}"...`, 'success');
+      showMessage(`📸 Generating image for map "${mapId}"...`, 'success');
 
-			mapElement.classList.add('hide-on-export');
+      mapElement.classList.add('hide-on-export');
 
-			setTimeout(() => {
-				html2canvas(mapElement, {
-					useCORS: true,
-					allowTaint: true,
-					scale: 1, 
-					width: mapElement.offsetWidth,
-					height: mapElement.offsetHeight,
-					backgroundColor: '#ffffff'
-				}).then(canvas => {
-					const link = document.createElement('a');
-					link.download = `${mapId}.png`;
-					link.href = canvas.toDataURL('image/png');
+      setTimeout(() => {
+        html2canvas(mapElement, {
+          useCORS: true,
+          allowTaint: true,
+          scale: 1, 
+          width: mapElement.offsetWidth,
+          height: mapElement.offsetHeight,
+          backgroundColor: '#ffffff'
+        }).then(canvas => {
+          const link = document.createElement('a');
+          link.download = `${mapId}.png`;
+          link.href = canvas.toDataURL('image/png');
 
-					document.body.appendChild(link);
-					link.click();
-					document.body.removeChild(link);
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
 
-					showMessage(`✅ Image "${mapId}.png" exported successfully!`, 'success');
-					mapElement.classList.remove('hide-on-export');
-				}).catch(error => {
-					console.error('Error exporting image:', error);
-					showMessage('❌ Error exporting image. Please try again.', 'error');
-					mapElement.classList.remove('hide-on-export');
-				});
-			}, 500);
-		}
+          showMessage(`✅ Image "${mapId}.png" exported successfully!`, 'success');
+          mapElement.classList.remove('hide-on-export');
+        }).catch(error => {
+          console.error('Error exporting image:', error);
+          showMessage('❌ Error exporting image. Please try again.', 'error');
+          mapElement.classList.remove('hide-on-export');
+        });
+      }, 500);
+    }
 
-		function loadExample() {
-			const exampleData = `mapa_sp,-23.5505, -46.6333, São Paulo
+    function loadExample() {
+      const exampleData = `mapa_sp,-23.5505, -46.6333, São Paulo
 mapa_sp,-23.5574, -46.6398, Bela Vista
 mapa_sp,-23.5489, -46.6388, Liberdade
 mapa_rj,-22.9068, -43.1729, Rio de Janeiro
 mapa_rj,-22.9038, -43.1818, Copacabana
 mapa_bh,-19.9167, -43.9345, Belo Horizonte`;
 
-			document.getElementById('coordinates').value = exampleData;
-			showMessage('✅ Example data loaded! Click "Generate All Maps" to visualize.', 'success');
-		}
+      document.getElementById('coordinates').value = exampleData;
+      showMessage('✅ Example data loaded! Click "Generate All Maps" to visualize.', 'success');
+    }
 
-		function clearAll() {
-			document.getElementById('coordinates').value = '';
-			const mapsContainer = document.getElementById('maps-container');
-			mapsContainer.innerHTML = '';
-			for (let mapId in maps) {
-				if (maps[mapId].instance) {
-					maps[mapId].instance.remove();
-				}
-			}
-			showMessage('✅ Data cleared successfully!', 'success');
-		}
-	</script>
+    function clearAll() {
+      document.getElementById('coordinates').value = '';
+      const mapsContainer = document.getElementById('maps-container');
+      mapsContainer.innerHTML = '';
+      for (let mapId in maps) {
+        if (maps[mapId].instance) {
+          maps[mapId].instance.remove();
+        }
+      }
+      showMessage('✅ Data cleared successfully!', 'success');
+    }
+  </script>
 </body>
 </html>
