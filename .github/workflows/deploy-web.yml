@@ -1,0 +1,24 @@
+name: Deploy Web
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/deploy-web.yml'
+      - 'web/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: web
+          branch: gh-pages
