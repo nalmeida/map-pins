@@ -262,7 +262,7 @@ The first column is the map ID. Multiple lines with the same ID will appear on t
         <div class="config-item">
           <label for="mapStyle">Map Style:</label>
           <select id="mapStyle">
-            <option value="cartodb-positron" selected>CartoDB Positron</option>
+            <option value="cartodb-positron">CartoDB Positron</option>
             <option value="openstreetmap">OpenStreetMap Standard</option>
             <option value="cartodb-dark">CartoDB DarkMatter</option>
             <option value="stamen-toner">Stamen Toner</option>
@@ -347,7 +347,6 @@ The first column is the map ID. Multiple lines with the same ID will appear on t
       return marker;
     }
 
-    // Funçao adaptada para gerar multiplos mapas
     function generateMaps() {
       const coordinatesText = document.getElementById('coordinates').value.trim();
       const mapsContainer = document.getElementById('maps-container');
@@ -359,7 +358,6 @@ The first column is the map ID. Multiple lines with the same ID will appear on t
         return;
       }
 
-      // Limpa os mapas anteriores
       mapsContainer.innerHTML = '';
       for (let mapId in maps) {
         if (maps[mapId].instance) {
@@ -367,7 +365,6 @@ The first column is the map ID. Multiple lines with the same ID will appear on t
         }
       }
       
-      // Reorganiza os dados por ID de mapa
       const mapData = {};
       const lines = coordinatesText.split('\n').filter(line => line.trim());
 
@@ -391,12 +388,10 @@ The first column is the map ID. Multiple lines with the same ID will appear on t
         return;
       }
       
-      // Gera os elementos HTML e os mapas
       for (const mapId in mapData) {
         if (mapData.hasOwnProperty(mapId)) {
           const points = mapData[mapId];
 
-          // Cria o contêiner para o mapa
           const mapContainer = document.createElement('div');
           mapContainer.className = 'map-container';
           mapContainer.innerHTML = `
@@ -408,7 +403,6 @@ The first column is the map ID. Multiple lines with the same ID will appear on t
           `;
           mapsContainer.appendChild(mapContainer);
         
-          // Inicializa o mapa do Leaflet
           const mapElement = document.getElementById(mapId);
           const initialZoom = parseInt(document.getElementById('initialZoom').value, 10);
           const mapInstance = L.map(mapId, {
@@ -424,7 +418,6 @@ The first column is the map ID. Multiple lines with the same ID will appear on t
             maxZoom: 18
           }).addTo(mapInstance);
           
-          // Adiciona os marcadores e ajusta o zoom
           const markers = [];
           const bounds = [];
           points.forEach(point => {
@@ -444,7 +437,6 @@ The first column is the map ID. Multiple lines with the same ID will appear on t
             }
           }
 
-          // Armazena a instância do mapa para uso posterior
           maps[mapId] = {
             instance: mapInstance,
             markers: markers,
@@ -454,7 +446,6 @@ The first column is the map ID. Multiple lines with the same ID will appear on t
       showMessage(`✅ ${Object.keys(mapData).length} map(s) generated successfully!`, 'success');
     }
 
-    // Funcao adaptada para exportar o mapa especifico
     function exportMapAsImage(mapId) {
       const mapElement = document.getElementById(mapId);
       if (!mapElement) {
@@ -516,6 +507,51 @@ mapa_bh,-19.9167, -43.9345, Belo Horizonte`;
       }
       showMessage('✅ Data cleared successfully!', 'success');
     }
+
+    // --- Novas Funções para localStorage ---
+
+    const configInputs = ['mapStyle', 'pinColor', 'initialZoom', 'mapWidth', 'mapHeight'];
+
+    function saveConfig() {
+      const config = {};
+      configInputs.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+          config[id] = element.value;
+        }
+      });
+      localStorage.setItem('mapConfig', JSON.stringify(config));
+    }
+
+    function loadConfig() {
+      const savedConfig = localStorage.getItem('mapConfig');
+      if (savedConfig) {
+        const config = JSON.parse(savedConfig);
+        configInputs.forEach(id => {
+          const element = document.getElementById(id);
+          if (element && config[id]) {
+            element.value = config[id];
+          }
+        });
+      }
+    }
+
+    // --- Event Listeners para acionar o salvamento ---
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadConfig();
+      // Adiciona um listener para cada input de configuração para salvar as mudanças
+      configInputs.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.addEventListener('change', saveConfig);
+          // O input de texto para cor é 'input' para capturar mudanças em tempo real
+          if (id === 'pinColor') {
+            element.addEventListener('input', saveConfig);
+          }
+        }
+      });
+    });
   </script>
 </body>
 </html>
